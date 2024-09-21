@@ -24,6 +24,10 @@ function featchOnOff() {
         .then(data => {
             if (data.isOn) {
                 document.getElementById('button1').innerText = "ON";
+
+                fetch('http://api.thingspeak.com/update?api_key=W72PXH57KWC4X0OL&field1=240&field2=0.1&field3=26.02')
+                .then(res => res.json())
+                .then(da =>{})
             }
             else {
                 document.getElementById('button1').innerText = "OFF";
@@ -40,6 +44,9 @@ function featchNotifi(){
         .then(data => {
             if (data.isNotify) {
                 document.getElementById('button2').innerText = "Notification: true";
+                fetch('http://api.thingspeak.com/update?api_key=W72PXH57KWC4X0OL&field1=240&field2=0.1&field3=120')
+                    .then(res => res.json())
+                    .then(da => { })
             } else {
                 document.getElementById('button2').innerText = "Notification: false";
             }
