@@ -1,36 +1,28 @@
+// Fetch initial status and update UI
 fetch('https://naso.asraful-alom.com/status')
     .then(response => response.json())
     .then(data => {
-        if (data.isNotify) {
-            document.getElementById('button2').innerText = "Notification: true";
-        } else {
-            document.getElementById('button2').innerText = "Notification: false";
-        }
-        if (data.isOn) {
-            document.getElementById('button1').innerText = "ON";
-        }
-        else {
-            document.getElementById('button1').innerText = "OFF";
-        }
+        updateStatusUI(data);
     })
     .catch(error => {
         console.error('Error fetching data:', error);
     });
 
+// Update the UI based on the fetched status data
+function updateStatusUI(data) {
+    document.getElementById('button2').innerText = `Notification: ${data.isNotify}`;
+    document.getElementById('button1').innerText = data.isOn ? "ON" : "OFF";
+}
 
-function featchOnOff() {
+// Toggle On/Off and update UI
+function fetchOnOff() {
     fetch('https://naso.asraful-alom.com/togolNotify')
         .then(response => response.json())
         .then(data => {
-            if (data.isOn) {
-                document.getElementById('button1').innerText = "ON";
+            document.getElementById('button1').innerText = data.isOn ? "ON" : "OFF";
 
-                fetch('http://api.thingspeak.com/update?api_key=W72PXH57KWC4X0OL&field1=240&field2=0.1&field3=26.02')
-                .then(res => res.json())
-                .then(da =>{})
-            }
-            else {
-                document.getElementById('button1').innerText = "OFF";
+            if (data.isOn) {
+                sendDataToThingSpeak(240, 0.1, 26.02);
             }
         })
         .catch(error => {
@@ -38,17 +30,14 @@ function featchOnOff() {
         });
 }
 
-function featchNotifi(){
+// Toggle Notification and update UI
+function fetchNotification() {
     fetch('https://naso.asraful-alom.com/togolOffOn')
         .then(response => response.json())
         .then(data => {
+            document.getElementById('button2').innerText = `Notification: ${data.isNotify}`;
             if (data.isNotify) {
-                document.getElementById('button2').innerText = "Notification: true";
-                fetch('http://api.thingspeak.com/update?api_key=W72PXH57KWC4X0OL&field1=240&field2=0.1&field3=120')
-                    .then(res => res.json())
-                    .then(da => { })
-            } else {
-                document.getElementById('button2').innerText = "Notification: false";
+                sendDataToThingSpeak(240, 0.1, 120);
             }
         })
         .catch(error => {
@@ -56,11 +45,16 @@ function featchNotifi(){
         });
 }
 
+// Function to send data to ThingSpeak
+function sendDataToThingSpeak(field1, field2, field3) {
+    const url = `http://api.thingspeak.com/update?api_key=W72PXH57KWC4X0OL&field1=${field1}&field2=${field2}&field3=${field3}`;
+    fetch(url)
+        .then(res => res.json())
+        .catch(error => {
+            console.error('Error sending data to ThingSpeak:', error);
+        });
+}
 
-document.getElementById('button1').addEventListener('click', () => {
-    featchOnOff();
-});
-
-document.getElementById('button2').addEventListener('click', () => {
-    featchNotifi();
-});
+// Event listeners for buttons
+document.getElementById('button1').addEventListener('click', fetchOnOff);
+document.getElementById('button2').addEventListener('click', fetchNotification);
